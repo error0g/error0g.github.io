@@ -1,0 +1,225 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>归并排序 | Error0 Blog·错误零</title><meta name="author" content="麦兜"><meta name="copyright" content="麦兜"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="**归并排序核心：分解 合并**  首先了解它是如何合并元素就很容易去了解这个算法分解步骤：数组两边都是有序的子数组，然后需要把他们拆分开  合并的步骤：1、定义三个变量 i、j、k  i指向Arr1的第一个元素  j指向Arr2的第一个元素 K指向 数组第一个元素2、让arr1[i]和arr2[j]比较大小  顺序取小 逆序取大3、如果arr1[i]&lt;arr2[j] 就把arr1[i]这个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="归并排序">
+<meta property="og:url" content="http://www.error0.cn/post/1599bffe.html">
+<meta property="og:site_name" content="Error0 Blog·错误零">
+<meta property="og:description" content="**归并排序核心：分解 合并**  首先了解它是如何合并元素就很容易去了解这个算法分解步骤：数组两边都是有序的子数组，然后需要把他们拆分开  合并的步骤：1、定义三个变量 i、j、k  i指向Arr1的第一个元素  j指向Arr2的第一个元素 K指向 数组第一个元素2、让arr1[i]和arr2[j]比较大小  顺序取小 逆序取大3、如果arr1[i]&lt;arr2[j] 就把arr1[i]这个">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://img.error0.cn/uploads/3042821783.png">
+<meta property="article:published_time" content="2019-07-28T03:22:00.000Z">
+<meta property="article:modified_time" content="2021-02-11T03:16:08.589Z">
+<meta property="article:author" content="麦兜">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://img.error0.cn/uploads/3042821783.png"><link rel="shortcut icon" href="//img.error0.cn/uploads/599727173_65ba7cd3066d95ae2d4078dc137b523d"><link rel="canonical" href="http://www.error0.cn/post/1599bffe.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  hexoversion: '5.2.0',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  ClickShowText: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#121212","position":"bottom-center"},
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
+
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: false,
+  postUpdate: '2021-02-11 11:16:08'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {
+  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+    }
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }
+})()</script><meta name="generator" content="Hexo 5.2.0"></head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="//img.error0.cn/uploads/599727173_65ba7cd3066d95ae2d4078dc137b523d" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">21</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">6</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/Artitalk/"><i class="fa-fw fas fa-comment"></i><span> 碎言</span></a></div></div></div></div><div id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(//img.error0.cn/uploads/3042821783.png)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Error0 Blog·错误零</a></span><span id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/Artitalk/"><i class="fa-fw fas fa-comment"></i><span> 碎言</span></a></div></div><span class="close" id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">归并排序</div></div><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2019-07-28T03:22:00.000Z" title="发表于 2019-07-28 11:22:00">2019-07-28</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-02-11T03:16:08.589Z" title="更新于 2021-02-11 11:16:08">2021-02-11</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AE%97%E6%B3%95/">算法</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><!--markdown-->**归并排序核心：分解 合并**
+
+<p><strong>首先了解它是如何合并元素就很容易去了解这个算法</strong><br><strong>分解步骤：</strong><br><img src="//img.error0.cn/uploads/3042821783.png" alt="1.png"><br><strong>数组两边都是有序的子数组，然后需要把他们拆分开</strong><br><img src="//img.error0.cn/uploads/1782885436.png" alt="2.png"></p>
+<hr>
+<p><strong>合并的步骤：</strong><br>1、定义三个变量 i、j、k  i指向Arr1的第一个元素  j指向Arr2的第一个元素 K指向 数组第一个元素<br>2、让arr1[i]和arr2[j]比较大小  顺序取小 逆序取大<br>3、如果arr1[i]&lt;arr2[j] 就把arr1[i]这个元素放在arr3<a target="_blank" rel="noopener" href="//img.error0.cn/uploads/1810195875.png">3</a>里面<br>4、然后维护一下下标 如果取arr1[i]元素 i++ 如果取arr2[j]元素 j++  然后k因为也添加元素了维护一下 k++往后移<br><img src="//img.error0.cn/uploads/1810195875.png" alt="3.png"><br><img src="//img.error0.cn/uploads/295173049.png" alt="4.png"><br><img src="//img.error0.cn/uploads/1118188217.png" alt="5.png"><br><img src="//img.error0.cn/uploads/2576150432.png" alt="6.png"><br><img src="//img.error0.cn/uploads/3195448189.png" alt="7.png"><br>完事！！！！</p>
+<hr>
+<p>但是 别忘了 这是两边排序好的。 如果是顺序乱的呢（当然是排序啦</p>
+<p>1、首先分解 把他分解成还剩一个元素 再合并。（只有一个元素 当然是排序好的了）<br><img src="//img.error0.cn/uploads/1182036193.png" alt="8.png"></p>
+<p>代码示例：</p>
+<pre><code>#include&lt;iostream&gt;
+#include&lt;algorithm&gt;
+#include&lt;cstring&gt;
+using namespace std;
+/*合并*/
+void merger(int arr[],int L,int M,int R)
+&#123;
+    int leftsize = M - L;
+    int rightsize = R - M + 1;
+    int *left = new int[leftsize];
+    int *right = new int[rightsize];
+    for (int i = L; i &lt; M; i++)
+    &#123;
+        left[i - L] = arr[i];
+    &#125;
+    for (int j = M; j &lt;=R; j++)
+    &#123;
+        right[j - M] = arr[j];
+    &#125;
+
+    /*大小比较合并*/
+    int i = 0; int j = 0; int k = L;
+    while (i &lt; leftsize&amp;&amp;j &lt; rightsize)
+    &#123;
+        if (left[i] &lt;right[j])
+        &#123;
+            arr[k] = left[i];
+            i++;
+            k++;
+        &#125;
+        else &#123;
+            arr[k] = right[j];
+            j++;
+            k++;
+        &#125;
+    &#125;
+    /*剩余的合并*/
+    while (i &lt; leftsize)
+    &#123;
+        arr[k] = left[i];
+        i++;
+        k++;
+    &#125;
+    while (j &lt; rightsize)
+    &#123;
+        arr[k] = right[j];
+        j++;
+        k++;
+    &#125;
+&#125;
+/*分解合并*/
+void mergersort(int arr[], int L, int R)
+&#123;
+    if (L == R) 
+        return;
+    /*砍一半*/
+    int M = (L + R) / 2; 
+    mergersort(arr, L, M);
+    mergersort(arr, M+1,R);
+    merger(arr, L, M+1, R);
+&#125;
+int main()
+&#123;
+    int arr[] = &#123; 2,5,1,3,4&#125;;
+    mergersort(arr,0, 4);
+    for (int i = 0; i &lt;=4; i++)
+    &#123;
+        cout &lt;&lt; arr[i];
+    &#125;
+
+    return 0;
+&#125;</code></pre>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">麦兜</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://www.error0.cn/post/1599bffe.html">http://www.error0.cn/post/1599bffe.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://www.error0.cn" target="_blank">Error0 Blog·错误零</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="//img.error0.cn/uploads/3042821783.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-full"><a href="/post/663c6d1d.html"><img class="prev-cover" src="//img.error0.cn/uploads/69416936.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">1190：上台阶</div></div></a></div></nav></article></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By 麦兜</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></section><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></div></body></html>
