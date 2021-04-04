@@ -1,0 +1,226 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Java并发编程-CPU缓存知识 | Error0 Blog·错误零</title><meta name="author" content="麦兜"><meta name="copyright" content="麦兜"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="基础知识首先了解程序在系统硬件组织是如何运行，如下方图这是一张Intel系统产品族的模型它和所有其它系统有相似的共同特性。  编译完成的待执行的代码I&#x2F;O桥会从硬盘读取复制到主存储器（内存）再通过I&#x2F;O桥复制到CPU，CPU读取复制到的数据会放到寄存器通过ALU（逻辑单元运算器）计算完成返回到寄存器，再由I&#x2F;O桥把结果返回到主存储器或其它组件。 高速缓存的至关重要根据机械原理，较大的存储设备要比较">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java并发编程-CPU缓存知识">
+<meta property="og:url" content="http://www.error0.cn/post/c557abda.html">
+<meta property="og:site_name" content="Error0 Blog·错误零">
+<meta property="og:description" content="基础知识首先了解程序在系统硬件组织是如何运行，如下方图这是一张Intel系统产品族的模型它和所有其它系统有相似的共同特性。  编译完成的待执行的代码I&#x2F;O桥会从硬盘读取复制到主存储器（内存）再通过I&#x2F;O桥复制到CPU，CPU读取复制到的数据会放到寄存器通过ALU（逻辑单元运算器）计算完成返回到寄存器，再由I&#x2F;O桥把结果返回到主存储器或其它组件。 高速缓存的至关重要根据机械原理，较大的存储设备要比较">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://img.error0.cn//uploads/CPU%E5%A4%9A%E6%A0%B8%E7%BC%93%E5%AD%98.png">
+<meta property="article:published_time" content="2020-10-31T04:45:25.000Z">
+<meta property="article:modified_time" content="2021-04-03T12:11:16.124Z">
+<meta property="article:author" content="麦兜">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://img.error0.cn//uploads/CPU%E5%A4%9A%E6%A0%B8%E7%BC%93%E5%AD%98.png"><link rel="shortcut icon" href="//img.error0.cn/v2-a168b974dd58ec853a99784ab19dbd84_720w.jpg"><link rel="canonical" href="http://www.error0.cn/post/c557abda"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#121212","position":"bottom-center"},
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-04-03 20:11:16'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    })(window)</script><meta name="generator" content="Hexo 5.2.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="//img.error0.cn/v2-a168b974dd58ec853a99784ab19dbd84_720w.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">22</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/Artitalk/"><i class="fa-fw fas fa-comment"></i><span> 碎言</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('//img.error0.cn//uploads/CPU%E5%A4%9A%E6%A0%B8%E7%BC%93%E5%AD%98.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Error0 Blog·错误零</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/Artitalk/"><i class="fa-fw fas fa-comment"></i><span> 碎言</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Java并发编程-CPU缓存知识</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-10-31T04:45:25.000Z" title="发表于 2020-10-31 12:45:25">2020-10-31</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-04-03T12:11:16.124Z" title="更新于 2021-04-03 20:11:16">2021-04-03</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/">并发编程</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Java并发编程-CPU缓存知识"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h1><p>首先了解<strong>程序</strong>在<strong>系统硬件组织</strong>是如何运行，如下方图这是一张Intel系统产品族的模型它和所有其它系统有相似的共同特性。</p>
+<p><img src="https://img.error0.cn//uploads/%E7%B3%BB%E7%BB%9F%E7%A1%AC%E4%BB%B6%E7%BB%84%E7%BB%87.png" alt="系统硬件组织"></p>
+<p>编译完成的待执行的代码<strong>I/O桥</strong>会从<strong>硬盘</strong>读取复制到<strong>主存储器</strong>（内存）再通过<strong>I/O</strong>桥复制到<strong>CPU</strong>，<strong>CPU</strong>读取复制到的数据会放到寄存器通过ALU（逻辑单元运算器）计算完成返回到寄存器，再由I/O桥把结果返回到主存储器或其它组件。</p>
+<h2 id="高速缓存的至关重要"><a href="#高速缓存的至关重要" class="headerlink" title="高速缓存的至关重要"></a>高速缓存的至关重要</h2><p>根据机械原理，较大的存储设备要比较小的存储设备运行的慢，而快速设备的造价远高于同类低速设备。比如说，硬盘比主存储器大1000倍，但是对处理器而言，从硬盘上读取一个字的时间开销要比主存储器的读取开销1000万倍。</p>
+<p>随着这些年半导体技术进步，处理器与主存的之间的速度差距增大，为了解决系统通信的速度差距所以处理器引入了<strong>高速缓存</strong>（cache memory），作为暂时的集结区域，存放处理器近期可能会需要的信息。</p>
+<p><img src="https://img.error0.cn//uploads/%E7%B3%BB%E7%BB%9F%E7%A1%AC%E4%BB%B6%E7%BB%84%E7%BB%87%E5%8A%A0%E5%85%A5%E7%BC%93%E5%AD%98.png" alt="系统硬件组织加入缓存"></p>
+<h2 id="多级缓存"><a href="#多级缓存" class="headerlink" title="多级缓存"></a>多级缓存</h2><p><img src="https://img.error0.cn//uploads/CPU%E5%A4%9A%E6%A0%B8%E7%BC%93%E5%AD%98.png" alt="CPU多核缓存"></p>
+<p>现在的CPU多核技术，都会有多级缓存，老的CPU会有两级内存（L1和L2），新的CPU会有三级内存（L1，L2，L3 ）</p>
+<ul>
+<li>L1缓分成两种，一种是指令缓存，一种是数据缓存。L2缓存和L3缓存不分指令和数据。</li>
+<li>L1和L2缓存在每一个CPU核中，L3则是所有CPU核心共享的内存。</li>
+<li>L1、L2、L3的越离CPU近就越小，速度也越快，越离CPU远，速度也越慢。</li>
+</ul>
+<p>我们的数据就从内存向上，先到L3，再到L2，再到L1，最后到寄存器进行CPU计算。建立多级缓存就会引起两个问题<strong>缓存的命中率</strong>、<strong>缓存更新的一致性</strong>。</p>
+<h1 id="缓存的命中"><a href="#缓存的命中" class="headerlink" title="缓存的命中"></a>缓存的命中</h1><blockquote>
+<p>关于高速缓存映射参考《深入理解计算机系统》</p>
+</blockquote>
+<p>对于CPU来说，它是不会一个字节一个字节的加载的，因为这非常没有效率，一般来说都是要一块一块的加载的，对于这样的<strong>对象组块</strong>（block）构成的组，术语叫“Cache Line”，一般来说，一个主流的CPU的Cache Line 是 64 Bytes（也有的CPU用32Bytes和128Bytes），64Bytes也就是16个32位的整型，这就是CPU从<strong>内存</strong>中复制数据上来的最小数据单位。</p>
+<p>存储器层次结构中心思想是，位于L级比L+1级的存储设备更小更快。所以通常L0和L1缓存传输通常为1个字大小的块。L1和L2 （L2和L3、L3和L4）的传送通常使用的是几十个字节的快。缓冲命中就是当程序需要访问第L+1层的某个数据对象时，它首先先在当前存储L层的一个块中查找。如果刚好存在那么说明<strong>缓冲命中</strong>，就直接可以访问数据对象可比从L+1层访问更快。反之就是L层没有缓存数据对象称为<strong>缓冲未命中</strong>，<strong>缓冲未命中</strong> CPU就需要等待L层去复制L+1层的数据对象。如果第L层缓存已经满了需要驱逐一个块来替换。</p>
+<h1 id="缓存一致性"><a href="#缓存一致性" class="headerlink" title="缓存一致性"></a>缓存一致性</h1><blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.scss.tcd.ie/Jeremy.Jones/VivioJS/caches/MESIHelp.htm">MESI 互动动画</a></p>
+</blockquote>
+<p>如果多个CPU同时缓存了一个数据对象并且某个CPU更新了数据，其它CPU是未知的，这会导致数据不一致。当CPU 0、CPU1 、CPU2 同时去执行x这个变量自增一次时：如果CPU0 自增完毕了其它CPU是不知道CPU0运算结果，会导致所有最终结果X=2，这并不是理想的结果。</p>
+<p>多核CPU的情况下有多个一级缓存，如何保证缓存内部数据的一致,不让系统数据混乱。这里就引出了一个一致性的协议<strong>MESI</strong>。</p>
+<p><img src="https://img.error0.cn//uploads/%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A70.png" alt="缓存一致性0"></p>
+<p><strong>MESI协议</strong>其主要表示缓存数据有四个状态：Modified（已修改）, Exclusive（独占的）,Shared（共享的），Invalid（无效的），它们存储在 <strong>Cache line</strong></p>
+<h2 id="简单示例"><a href="#简单示例" class="headerlink" title="简单示例"></a>简单示例</h2><table>
+<thead>
+<tr>
+<th>当前操作</th>
+<th>CPU0</th>
+<th>CPU1</th>
+<th>内存</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1) CPU0 read(x)</td>
+<td>x=1 (E)</td>
+<td></td>
+<td>x=1</td>
+<td>只有一个CPU有 x 变量，  所以，状态是 Exclusive</td>
+</tr>
+<tr>
+<td>2) CPU1 read(x)</td>
+<td>x=1 (S)</td>
+<td>x=1(S)</td>
+<td>x=1</td>
+<td>有两个CPU都读取 x 变量，  所以状态变成 Shared</td>
+</tr>
+<tr>
+<td>3) CPU0 write(x,9)</td>
+<td>x=9 (M)</td>
+<td>x=1(I)</td>
+<td>x=1</td>
+<td>变量改变，在CPU0中状态  变成 Modified，在CPU1中  状态变成 Invalid</td>
+</tr>
+<tr>
+<td>4) 变量 x 写回内存</td>
+<td>x=9 (M)</td>
+<td>X=1(I)</td>
+<td>x=9</td>
+<td>目前的状态不变</td>
+</tr>
+<tr>
+<td>5) CPU1 read(x)</td>
+<td>x=9 (S)</td>
+<td>x=9(S)</td>
+<td>x=9</td>
+<td>变量同步到所有的Cache中，  状态回到Shared</td>
+</tr>
+</tbody></table>
+<h1 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h1><p>Java的内存模型和操作系统内存模型有很多共同特性，每条线程都有自己的缓存（工作内存），对于日后处理Java并发安全有一定的好处。</p>
+<p><del>了解CPU缓存能帮助自己写出一些对CPU缓存比较友善的代码。</del></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">麦兜</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://www.error0.cn/post/c557abda.html">http://www.error0.cn/post/c557abda.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://www.error0.cn" target="_blank">Error0 Blog·错误零</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="//img.error0.cn//uploads/CPU%E5%A4%9A%E6%A0%B8%E7%BC%93%E5%AD%98.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/6bfd7cf7.html"><img class="prev-cover" src="//img.error0.cn//uploads/Java%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B%E4%B8%8ECPU%E7%BB%84%E7%BB%87.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Java并发编程-内存模型</div></div></a></div><div class="next-post pull-right"><a href="/post/dcfbbde9.html"><img class="next-cover" src="//img.error0.cn/uploads/2944888906.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">手写框架带你理解SpringMVC过程原理</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-info-avatar is-center"><img class="avatar-img" src="//img.error0.cn/v2-a168b974dd58ec853a99784ab19dbd84_720w.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">麦兜</div><div class="author-info__description"></div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">22</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div></div><a class="button--animated" id="card-info-btn" href="javascript:void(0)"><i class="fa fa-star"></i><span>收藏本站</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/error0g" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="https://www.yuque.com/buhuifeidechaoren/uf9qxf" target="_blank" title="笔记"><i class="fa fa-file"></i></a><a class="social-icon" href="mailto:error0@yeah.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content">暂无公告</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="toc-number">1.</span> <span class="toc-text">基础知识</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%AB%98%E9%80%9F%E7%BC%93%E5%AD%98%E7%9A%84%E8%87%B3%E5%85%B3%E9%87%8D%E8%A6%81"><span class="toc-number">1.1.</span> <span class="toc-text">高速缓存的至关重要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%9A%E7%BA%A7%E7%BC%93%E5%AD%98"><span class="toc-number">1.2.</span> <span class="toc-text">多级缓存</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BC%93%E5%AD%98%E7%9A%84%E5%91%BD%E4%B8%AD"><span class="toc-number">2.</span> <span class="toc-text">缓存的命中</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7"><span class="toc-number">3.</span> <span class="toc-text">缓存一致性</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%80%E5%8D%95%E7%A4%BA%E4%BE%8B"><span class="toc-number">3.1.</span> <span class="toc-text">简单示例</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9C%80%E5%90%8E"><span class="toc-number">4.</span> <span class="toc-text">最后</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/a1493e11.html" title="Java8函数式编程"><img src="//img.error0.cn/lambda.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java8函数式编程"/></a><div class="content"><a class="title" href="/post/a1493e11.html" title="Java8函数式编程">Java8函数式编程</a><time datetime="2021-04-03T14:16:19.000Z" title="发表于 2021-04-03 22:16:19">2021-04-03</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/sa78128s.html" title="shiro集成redis实现单点登录"><img src="//img.error0.cn/shiroreids.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="shiro集成redis实现单点登录"/></a><div class="content"><a class="title" href="/post/sa78128s.html" title="shiro集成redis实现单点登录">shiro集成redis实现单点登录</a><time datetime="2021-02-28T06:35:38.000Z" title="发表于 2021-02-28 14:35:38">2021-02-28</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/2020.html" title="2020个人年终总结"><img src="https://images.pexels.com/photos/4057655/pexels-photo-4057655.jpeg?auto=compress&amp;cs=tinysrgb&amp;dpr=2&amp;h=750&amp;w=1260" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="2020个人年终总结"/></a><div class="content"><a class="title" href="/post/2020.html" title="2020个人年终总结">2020个人年终总结</a><time datetime="2020-12-27T11:52:00.000Z" title="发表于 2020-12-27 19:52:00">2020-12-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/6bfd7cf7.html" title="Java并发编程-内存模型"><img src="//img.error0.cn//uploads/Java%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B%E4%B8%8ECPU%E7%BB%84%E7%BB%87.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java并发编程-内存模型"/></a><div class="content"><a class="title" href="/post/6bfd7cf7.html" title="Java并发编程-内存模型">Java并发编程-内存模型</a><time datetime="2020-11-15T02:23:56.000Z" title="发表于 2020-11-15 10:23:56">2020-11-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/c557abda.html" title="Java并发编程-CPU缓存知识"><img src="//img.error0.cn//uploads/CPU%E5%A4%9A%E6%A0%B8%E7%BC%93%E5%AD%98.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java并发编程-CPU缓存知识"/></a><div class="content"><a class="title" href="/post/c557abda.html" title="Java并发编程-CPU缓存知识">Java并发编程-CPU缓存知识</a><time datetime="2020-10-31T04:45:25.000Z" title="发表于 2020-10-31 12:45:25">2020-10-31</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('//img.error0.cn//uploads/CPU%E5%A4%9A%E6%A0%B8%E7%BC%93%E5%AD%98.png')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By 麦兜</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
